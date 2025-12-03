@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 
@@ -7,6 +7,10 @@ const seededRandom = (seed: number) => {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 };
+
+// Thunder flash timing constants
+const THUNDER_FLASH_MIN_INTERVAL_MS = 4000;
+const THUNDER_FLASH_RANDOM_RANGE_MS = 6000;
 
 // Fire effect for elite retention performers (5+ retains)
 export const FireEffect: React.FC<{ intensity?: number }> = ({ intensity = 1 }) => {
@@ -84,6 +88,12 @@ export const CelebrationBurst: React.FC<{ agentName: string; department: string;
   department,
   onComplete,
 }) => {
+  const onCompleteRef = useRef(onComplete);
+  
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+  
   const particles = useMemo(() => 
     Array.from({ length: 20 }, (_, i) => ({
       id: i,
@@ -96,10 +106,10 @@ export const CelebrationBurst: React.FC<{ agentName: string; department: string;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      onComplete?.();
+      onCompleteRef.current?.();
     }, 2000);
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, []);
 
   return (
     <motion.div
@@ -301,7 +311,10 @@ export const VolcanoEffect: React.FC<{ intensity?: number }> = ({ intensity = 1 
 export const ThunderBackground: React.FC = () => {
   const { theme } = useTheme();
   const [flash, setFlash] = useState(false);
-  const intervalDuration = useMemo(() => 4000 + seededRandom(123) * 6000, []);
+  const intervalDuration = useMemo(() => 
+    THUNDER_FLASH_MIN_INTERVAL_MS + seededRandom(123) * THUNDER_FLASH_RANDOM_RANGE_MS, 
+    []
+  );
 
   useEffect(() => {
     if (theme !== "thunder") return;

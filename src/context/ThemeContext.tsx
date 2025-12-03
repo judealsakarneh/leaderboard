@@ -12,19 +12,22 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const themes: ThemeName[] = ["thunder", "volcano", "slots", "bowling"];
 
+// Auto-cycle themes every 2 minutes
+const THEME_CYCLE_INTERVAL_MS = 120000;
+
 type Props = { children: ReactNode };
 
 export const ThemeProvider: React.FC<Props> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeName>("thunder");
 
-  // Auto-cycle themes every 2 minutes
+  // Auto-cycle themes
   useEffect(() => {
     const id = setInterval(() => {
       setThemeState((prev) => {
         const idx = themes.indexOf(prev);
         return themes[(idx + 1) % themes.length];
       });
-    }, 120000);
+    }, THEME_CYCLE_INTERVAL_MS);
     return () => clearInterval(id);
   }, []);
 
