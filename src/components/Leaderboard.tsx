@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import type { Agent, Department } from "../types";
+import { useTheme } from "../context/ThemeContext";
+import { FireEffect, LightningEffect } from "./VisualEffects";
 
 type Props = {
   department: Department;
@@ -15,6 +17,7 @@ export const Leaderboard: React.FC<Props> = ({
   dense,
   highlightAgentId,
 }) => {
+  const { theme } = useTheme();
   const threshold = department === "retention" ? 5 : 10;
 
   return (
@@ -25,6 +28,10 @@ export const Leaderboard: React.FC<Props> = ({
         const isTop = index === 0;
         const isElite = score >= threshold;
         const isHighlight = highlightAgentId === agent.id;
+        
+        // Fire for retention elites (5+ retains), Lightning for NSF elites (10+ NSF)
+        const showFire = department === "retention" && isElite;
+        const showLightning = department === "nsf" && isElite;
 
         const fillPercent =
           score <= 0 ? 5 : Math.min(100, department === "retention" ? score * 12 : score * 6);
@@ -33,11 +40,17 @@ export const Leaderboard: React.FC<Props> = ({
           <motion.div
             key={agent.id}
             layout
-            className={`lb-row ${isElite ? "lb-row-elite" : ""} ${
+            className={`lb-row theme-${theme} ${isElite ? "lb-row-elite" : ""} ${
               isHighlight ? "lb-row-focus" : ""
-            }`}
+            } ${showFire ? "lb-row-elite-fire" : ""} ${showLightning ? "lb-row-elite-lightning" : ""}`}
             transition={{ type: "spring", stiffness: 260, damping: 26 }}
           >
+            {/* Fire effect for retention elites */}
+            {showFire && <FireEffect intensity={Math.min(2, score / 5)} />}
+            
+            {/* Lightning effect for NSF elites */}
+            {showLightning && <LightningEffect intensity={Math.min(2, score / 10)} />}
+            
             <motion.div
               className="lb-rank"
               animate={

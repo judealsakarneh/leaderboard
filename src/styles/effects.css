@@ -1,0 +1,662 @@
+/* ===== VISUAL EFFECTS STYLES ===== */
+
+/* Fire Effect */
+.fire-effect-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.flame {
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 30px;
+  background: linear-gradient(to top, #ff4500, #ff6b35, #ffa500, #ffcc00, transparent);
+  border-radius: 50% 50% 20% 20%;
+  filter: blur(2px);
+  animation: flicker 0.3s ease-in-out infinite alternate;
+  box-shadow: 
+    0 0 10px #ff4500,
+    0 0 20px #ff6b35,
+    0 0 30px #ffa500;
+}
+
+@keyframes flicker {
+  0% { transform: scaleY(1) scaleX(1); }
+  100% { transform: scaleY(1.1) scaleX(0.9); }
+}
+
+/* Lightning Effect */
+.lightning-effect-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.lightning-bolt {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 100px;
+  background: linear-gradient(180deg, #fff 0%, #00bfff 30%, #1e90ff 70%, transparent 100%);
+  clip-path: polygon(
+    40% 0%, 60% 0%, 55% 25%, 70% 25%, 45% 55%, 
+    60% 55%, 35% 100%, 40% 60%, 25% 60%, 50% 30%, 35% 30%
+  );
+  box-shadow: 
+    0 0 20px #00bfff,
+    0 0 40px #1e90ff,
+    0 0 60px #00bfff;
+  filter: blur(1px);
+}
+
+.electric-arc {
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-image: linear-gradient(90deg, transparent, #00bfff, transparent) 1;
+  animation: arc-pulse 1s ease-in-out infinite;
+}
+
+@keyframes arc-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.6; }
+}
+
+/* Celebration Burst */
+.celebration-burst {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.celebration-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.celebration-ring {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 3px solid;
+  border-radius: 50%;
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
+}
+
+.celebration-badge {
+  padding: 16px 32px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  text-align: center;
+}
+
+.celebration-badge.retention {
+  border-color: #22c55e;
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+}
+
+.celebration-badge.nsf {
+  border-color: #f97316;
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.5);
+}
+
+.celebration-name {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.celebration-action {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.celebration-badge.retention .celebration-action {
+  color: #22c55e;
+}
+
+.celebration-badge.nsf .celebration-action {
+  color: #f97316;
+}
+
+.celebration-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+}
+
+.celebration-particle.retention {
+  background: radial-gradient(circle, #22c55e, #16a34a);
+  box-shadow: 0 0 10px #22c55e;
+}
+
+.celebration-particle.nsf {
+  background: radial-gradient(circle, #f97316, #ea580c);
+  box-shadow: 0 0 10px #f97316;
+}
+
+/* Slots Effect */
+.slots-effect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+}
+
+.slots-machine {
+  padding: 30px 50px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 4px solid #ffd700;
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.5),
+    0 30px 80px rgba(0, 0, 0, 0.8),
+    inset 0 0 60px rgba(255, 215, 0, 0.1);
+}
+
+.slots-header {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  margin-bottom: 20px;
+  letter-spacing: 0.1em;
+}
+
+.slots-reels {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.slot-reel {
+  width: 80px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #0a0a0a, #1a1a1a, #0a0a0a);
+  border: 3px solid #444;
+  border-radius: 12px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.slot-reel.spinning {
+  animation: reel-spin 0.1s linear infinite;
+}
+
+.slot-reel.revealed {
+  border-color: #ffd700;
+  box-shadow: 
+    inset 0 0 20px rgba(255, 215, 0, 0.3),
+    0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes reel-spin {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
+.slot-symbol {
+  font-size: 48px;
+  animation: symbol-pop 0.3s ease-out;
+}
+
+@keyframes symbol-pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.slot-blur {
+  font-size: 48px;
+  color: #666;
+  animation: blur-spin 0.15s linear infinite;
+}
+
+@keyframes blur-spin {
+  0% { opacity: 0.3; transform: translateY(-5px); }
+  50% { opacity: 0.8; transform: translateY(0); }
+  100% { opacity: 0.3; transform: translateY(5px); }
+}
+
+.slots-result {
+  text-align: center;
+}
+
+.slots-name {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.slots-score {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #22c55e;
+  margin-top: 8px;
+  letter-spacing: 0.15em;
+}
+
+/* Bowling Effect */
+.bowling-effect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 300px;
+  z-index: 100;
+}
+
+.bowling-lane {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(90deg, #8b4513 0%, #a0522d 50%, #8b4513 100%);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bowling-ball {
+  position: absolute;
+  bottom: 50%;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at 30% 30%, #333, #000);
+  border-radius: 50%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.bowling-pins {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  grid-template-columns: repeat(4, 25px);
+  gap: 5px;
+}
+
+.bowling-pin {
+  width: 20px;
+  height: 40px;
+  background: linear-gradient(180deg, #fff 0%, #f0f0f0 60%, #e00 60%, #c00 100%);
+  border-radius: 50% 50% 30% 30%;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.bowling-strike-text {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.bowling-strike-text span:first-child {
+  display: block;
+  font-size: 48px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6);
+  letter-spacing: 0.2em;
+}
+
+.bowling-name {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+}
+
+/* Volcano Effect */
+.volcano-effect-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.volcano-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 40px;
+  background: linear-gradient(180deg, #4a0000 0%, #2a0000 100%);
+  clip-path: polygon(20% 100%, 0% 100%, 30% 0%, 70% 0%, 100% 100%, 80% 100%);
+}
+
+.volcano-glow {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+  background: radial-gradient(ellipse, #ff4500, #ff6b35, transparent);
+  filter: blur(10px);
+}
+
+.lava-drop {
+  position: absolute;
+  bottom: 40px;
+  background: radial-gradient(circle, #ffd700 0%, #ff4500 50%, #ff0000 100%);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px #ff4500,
+    0 0 20px #ff6b35;
+}
+
+/* Thunder Theme Background */
+.thunder-flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.thunder-clouds {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(100, 100, 120, 0.3), transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(80, 80, 100, 0.3), transparent 50%),
+    radial-gradient(ellipse at 50% 10%, rgba(60, 60, 80, 0.4), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Volcano Theme Background */
+.volcano-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lava-flow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, 
+    transparent 0%,
+    rgba(255, 69, 0, 0.1) 30%,
+    rgba(255, 69, 0, 0.3) 60%,
+    rgba(255, 0, 0, 0.4) 100%
+  );
+}
+
+.ember-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.ember {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #ffd700, #ff4500);
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ff4500;
+}
+
+/* Slots Theme Background */
+.slots-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.neon-grid {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, rgba(255, 0, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.casino-lights {
+  position: absolute;
+  inset: 0;
+}
+
+.casino-light {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd700, #ff6b35);
+  box-shadow: 0 0 15px #ffd700;
+}
+
+/* Bowling Theme Background */
+.bowling-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bowling-lane-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(139, 69, 19, 0.1) 0%,
+    rgba(139, 69, 19, 0.05) 10%,
+    transparent 20%,
+    transparent 80%,
+    rgba(139, 69, 19, 0.05) 90%,
+    rgba(139, 69, 19, 0.1) 100%
+  );
+}
+
+.lane-arrows {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 60px;
+  background: 
+    linear-gradient(135deg, transparent 45%, rgba(255, 0, 0, 0.1) 45%, rgba(255, 0, 0, 0.1) 55%, transparent 55%),
+    linear-gradient(45deg, transparent 45%, rgba(0, 0, 255, 0.1) 45%, rgba(0, 0, 255, 0.1) 55%, transparent 55%);
+}
+
+.lane-dots {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 20px;
+}
+
+/* Theme-specific row styles */
+.lb-row.theme-thunder.lb-row-elite {
+  border-color: rgba(0, 191, 255, 0.9);
+  box-shadow: 
+    0 0 20px rgba(0, 191, 255, 0.5),
+    0 0 40px rgba(30, 144, 255, 0.3);
+}
+
+.lb-row.theme-volcano.lb-row-elite {
+  border-color: rgba(255, 69, 0, 0.9);
+  box-shadow: 
+    0 0 20px rgba(255, 69, 0, 0.5),
+    0 0 40px rgba(255, 0, 0, 0.3);
+}
+
+.lb-row.theme-slots.lb-row-elite {
+  border-color: rgba(255, 215, 0, 0.9);
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.5),
+    0 0 40px rgba(255, 165, 0, 0.3);
+}
+
+.lb-row.theme-bowling.lb-row-elite {
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.5),
+    0 0 40px rgba(200, 200, 200, 0.3);
+}
+
+/* Enhanced notification styles */
+.notif-card.accent-jackpot {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(34, 197, 94, 0.2));
+  border-color: rgba(34, 197, 94, 0.9);
+  box-shadow: 
+    0 0 30px rgba(34, 197, 94, 0.7),
+    0 0 60px rgba(34, 197, 94, 0.4);
+  animation: jackpot-glow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes jackpot-glow {
+  0% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.7), 0 0 60px rgba(34, 197, 94, 0.4); }
+  100% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.9), 0 0 80px rgba(34, 197, 94, 0.6); }
+}
+
+.notif-card.accent-streak {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(129, 140, 248, 0.2));
+  animation: streak-pulse 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes streak-pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.02); }
+}
+
+/* Elite effects on leaderboard rows */
+.lb-row-elite-fire {
+  position: relative;
+}
+
+.lb-row-elite-fire::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to top, rgba(255, 69, 0, 0.4), transparent);
+  pointer-events: none;
+  animation: fire-glow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes fire-glow {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.lb-row-elite-lightning {
+  position: relative;
+}
+
+.lb-row-elite-lightning::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(0, 191, 255, 0.6);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: lightning-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes lightning-pulse {
+  0%, 100% { opacity: 0.3; box-shadow: 0 0 10px rgba(0, 191, 255, 0.5); }
+  50% { opacity: 1; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); }
+}
+
+/* Theme selector button */
+.theme-selector {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.theme-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.theme-btn.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3));
+  border-color: rgba(56, 189, 248, 0.9);
+}
+
+.theme-btn.thunder.active {
+  background: linear-gradient(135deg, rgba(0, 191, 255, 0.3), rgba(30, 144, 255, 0.3));
+  border-color: rgba(0, 191, 255, 0.9);
+}
+
+.theme-btn.volcano.active {
+  background: linear-gradient(135deg, rgba(255, 69, 0, 0.3), rgba(255, 0, 0, 0.3));
+  border-color: rgba(255, 69, 0, 0.9);
+}
+
+.theme-btn.slots.active {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+  border-color: rgba(255, 215, 0, 0.9);
+}
+
+.theme-btn.bowling.active {
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.3), rgba(160, 82, 45, 0.3));
+  border-color: rgba(139, 69, 19, 0.9);
+}

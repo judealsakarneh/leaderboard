@@ -73,19 +73,6 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Connect to GitHub repo: triggers a notification
-  const connectToGithubRepo = useCallback((agentId: number, repoUrl: string) => {
-    const agent = agents.find(a => a.id === agentId);
-    if (!agent) return;
-    pushNotification({
-      agentId,
-      agentName: agent.name,
-      department: "retention",
-      kind: "info",
-      message: `Connecting ${agent.name} to GitHub repo: ${repoUrl}`,
-    }, 2500);
-  }, [agents, pushNotification]);
-
   const pushNotification = useCallback(
     (data: Omit<Notification, "id">, ttl = 2600) => {
       const id = ++notificationIdCounter;
@@ -97,6 +84,19 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
     },
     []
   );
+
+  // Connect to GitHub repo: triggers a notification
+  const connectToGithubRepo = useCallback((agentId: number, repoUrl: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+    pushNotification({
+      agentId,
+      agentName: agent.name,
+      department: "retention",
+      kind: "plus",
+      message: `Connecting ${agent.name} to GitHub repo: ${repoUrl}`,
+    }, 2500);
+  }, [agents, pushNotification]);
 
   const addAgent = useCallback((name: string, avatarUrl?: string) => {
     const trimmed = name.trim();
