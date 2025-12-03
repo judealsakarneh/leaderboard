@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useCallback } from "react";
 import {
   AnimatePresence,
   LayoutGroup,
   motion,
-  type Transition,
 } from "framer-motion";
 
 type Agent = {
@@ -20,7 +19,6 @@ type MilestoneNotification = {
 };
 
 let agentCounter = 3;
-let notificationId = 0;
 
 const initialAgents: Agent[] = [
   { id: 1, name: "Jude", score: 3, createdAt: Date.now() - 3000 },
@@ -67,6 +65,7 @@ const App: React.FC = () => {
   const [milestoneNotifications, setMilestoneNotifications] = useState<
     MilestoneNotification[]
   >([]);
+  const notificationIdRef = useRef(0);
 
   const shake = useScreenShake(15, 400);
 
@@ -89,40 +88,41 @@ const App: React.FC = () => {
     setNewAgentName("");
   };
 
-  const handlePlusOne = (agentId: number) => {
-    const agent = agents.find((a) => a.id === agentId);
-    if (!agent) return;
+  const handlePlusOne = useCallback((agentId: number) => {
+    setAgents((prev) => {
+      const agent = prev.find((a) => a.id === agentId);
+      if (!agent) return prev;
 
-    const newScore = agent.score + 1;
-
-    // Update scores
-    setAgents((prev) =>
-      prev.map((a) =>
+      const newScore = agent.score + 1;
+      const updated = prev.map((a) =>
         a.id === agentId ? { ...a, score: newScore } : a
-      )
-    );
+      );
 
-    // Trigger earthquake and notification on 5-milestone
-    if (newScore > 0 && newScore % 5 === 0) {
-      shake();
-      notificationId += 1;
-      setMilestoneNotifications((prev) => [
-        ...prev,
-        {
-          id: notificationId,
-          agentName: agent.name,
-          milestone: newScore,
-        },
-      ]);
+      // Trigger earthquake and notification on 5-milestone
+      if (newScore > 0 && newScore % 5 === 0) {
+        shake();
+        notificationIdRef.current += 1;
+        const currentId = notificationIdRef.current;
+        setMilestoneNotifications((prevNotifs) => [
+          ...prevNotifs,
+          {
+            id: currentId,
+            agentName: agent.name,
+            milestone: newScore,
+          },
+        ]);
 
-      // Remove notification after 4 seconds
-      setTimeout(() => {
-        setMilestoneNotifications((prev) =>
-          prev.filter((n) => n.id !== notificationId)
-        );
-      }, 4000);
-    }
-  };
+        // Remove notification after 4 seconds
+        setTimeout(() => {
+          setMilestoneNotifications((prevNotifs) =>
+            prevNotifs.filter((n) => n.id !== currentId)
+          );
+        }, 4000);
+      }
+
+      return updated;
+    });
+  }, [shake]);
 
   const handleResetScores = () => {
     setAgents((prev) => prev.map((a) => ({ ...a, score: 0 })));
@@ -387,8 +387,11 @@ type MilestoneNotificationProps = {
 const MilestoneNotification: React.FC<MilestoneNotificationProps> = ({
   notification,
 }) => {
-  const coolMessage =
-    coolMessages[Math.floor(Math.random() * coolMessages.length)];
+  // Use notification.id as seed for deterministic random
+  const coolMessage = useMemo(() => {
+    const index = notification.id % coolMessages.length;
+    return coolMessages[index];
+  }, [notification.id]);
 
   return (
     <motion.div

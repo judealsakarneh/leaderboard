@@ -1,9 +1,48 @@
 import React, { useState } from "react";
 import "./App.css";
+import "./styles/effects.css";
 import { AgentsProvider } from "./context/AgentsContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { DisplayScreen } from "./screens/DisplayScreen";
 import { AdminPanel } from "./components/AdminPanel";
 import { NotificationStack } from "./components/NotificationStack";
+import {
+  ThunderBackground,
+  VolcanoBackground,
+  SlotsBackground,
+  BowlingBackground,
+} from "./components/VisualEffects";
+
+const ThemeSelector: React.FC = () => {
+  const { theme, setTheme } = useTheme();
+  const themes = ["thunder", "volcano", "slots", "bowling"] as const;
+
+  return (
+    <div className="theme-selector">
+      {themes.map((t) => (
+        <button
+          key={t}
+          className={`theme-btn ${t} ${theme === t ? "active" : ""}`}
+          onClick={() => setTheme(t)}
+        >
+          {t === "thunder" && "⚡"}
+          {t === "volcano" && "🌋"}
+          {t === "slots" && "🎰"}
+          {t === "bowling" && "🎳"}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const ThemeBackgrounds: React.FC = () => (
+  <>
+    <ThunderBackground />
+    <VolcanoBackground />
+    <SlotsBackground />
+    <BowlingBackground />
+  </>
+);
 
 const AppShell: React.FC = () => {
   const [view, setView] = useState<"display" | "admin">("display");
@@ -11,6 +50,7 @@ const AppShell: React.FC = () => {
   return (
     <div className="app-root">
       <div className="bg-layer" />
+      <ThemeBackgrounds />
       <header className="app-header">
         <div className="header-left">
           <button
@@ -29,6 +69,7 @@ const AppShell: React.FC = () => {
             </div>
           </div>
         </div>
+        {view === "display" && <ThemeSelector />}
       </header>
 
       <main className="app-main">
@@ -42,9 +83,11 @@ const AppShell: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AgentsProvider>
-      <AppShell />
-    </AgentsProvider>
+    <ThemeProvider>
+      <AgentsProvider>
+        <AppShell />
+      </AgentsProvider>
+    </ThemeProvider>
   );
 };
 

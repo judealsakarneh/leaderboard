@@ -2,6 +2,15 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAgents } from "../context/AgentsContext";
 
+const getEmoji = (kind: string, department: string) => {
+  if (kind === "jackpot") return department === "retention" ? "🔥" : "⚡";
+  if (kind === "streak") return "🚀";
+  if (kind === "milestone") return "🎯";
+  if (kind === "plus") return department === "retention" ? "✅" : "💪";
+  if (kind === "minus") return "↩️";
+  return "";
+};
+
 export const NotificationStack: React.FC = () => {
   const { notifications } = useAgents();
 
@@ -37,18 +46,27 @@ export const NotificationStack: React.FC = () => {
               break;
           }
 
+          const emoji = getEmoji(n.kind, n.department);
+          const isSpecial = n.kind === "jackpot" || n.kind === "streak";
+
           return (
             <motion.div
               key={n.id}
               className={`notif-card ${cls}`}
               style={{ bottom: 12 + offset }}
               initial={{ x: 80, opacity: 0, scale: 0.95 }}
-              animate={{ x: 0, opacity: 1, scale: 1 }}
+              animate={
+                isSpecial
+                  ? { x: 0, opacity: 1, scale: [0.95, 1.05, 1] }
+                  : { x: 0, opacity: 1, scale: 1 }
+              }
               exit={{ x: 80, opacity: 0, scale: 0.97 }}
               transition={{ type: "spring", stiffness: 260, damping: 24 }}
             >
               <div className="notif-header">
-                <span className="notif-label">{label}</span>
+                <span className="notif-label">
+                  {emoji} {label}
+                </span>
                 <span
                   className={`notif-dept ${
                     n.department === "retention" ? "d-ret" : "d-nsf"
