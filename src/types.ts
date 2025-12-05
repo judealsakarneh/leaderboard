@@ -20,7 +20,7 @@ export type Event = {
   timestamp: number;
 };
 
-export type NotificationKind = "plus" | "minus" | "milestone" | "streak" | "jackpot";
+export type NotificationKind = "plus" | "minus" | "milestone" | "streak" | "jackpot" | "info" | "bigAnnouncement" | "rankUp";
 
 export type Notification = {
   id: number;

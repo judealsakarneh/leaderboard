@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AnimatePresence,
   LayoutGroup,
   motion,
-  type Transition,
 } from "framer-motion";
 
 type Agent = {

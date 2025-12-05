@@ -9,6 +9,19 @@ type Props = {
   highlightAgentId?: number;
 };
 
+// Get glass crack level based on score
+const getCrackLevel = (score: number, department: Department): number => {
+  const thresholds = department === "retention" 
+    ? [4, 7, 10, 15] // Retention milestones
+    : [6, 10, 15, 20]; // NSF milestones
+  
+  let level = 0;
+  for (const threshold of thresholds) {
+    if (score >= threshold) level++;
+  }
+  return Math.min(level, 4);
+};
+
 export const Leaderboard: React.FC<Props> = ({
   department,
   agents,
@@ -25,6 +38,7 @@ export const Leaderboard: React.FC<Props> = ({
         const isTop = index === 0;
         const isElite = score >= threshold;
         const isHighlight = highlightAgentId === agent.id;
+        const crackLevel = getCrackLevel(score, department);
 
         const fillPercent =
           score <= 0 ? 5 : Math.min(100, department === "retention" ? score * 12 : score * 6);
@@ -35,9 +49,14 @@ export const Leaderboard: React.FC<Props> = ({
             layout
             className={`lb-row ${isElite ? "lb-row-elite" : ""} ${
               isHighlight ? "lb-row-focus" : ""
-            }`}
+            } ${crackLevel > 0 ? `lb-row-crack-${crackLevel}` : ""}`}
             transition={{ type: "spring", stiffness: 260, damping: 26 }}
           >
+            {/* Glass crack overlay */}
+            {crackLevel > 0 && (
+              <div className={`lb-crack-overlay crack-level-${crackLevel}`} />
+            )}
+            
             <motion.div
               className="lb-rank"
               animate={
