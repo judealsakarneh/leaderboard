@@ -26,7 +26,6 @@ type AgentsContextValue = {
     department: Department,
     sinceMs: number
   ) => number;
-  connectToGithubRepo: (agentId: number, repoUrl: string) => void;
 };
 
 const AgentsContext = createContext<AgentsContextValue | undefined>(undefined);
@@ -72,19 +71,6 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [events, setEvents] = useState<Event[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Connect to GitHub repo: triggers a notification
-  const connectToGithubRepo = useCallback((agentId: number, repoUrl: string) => {
-    const agent = agents.find(a => a.id === agentId);
-    if (!agent) return;
-    pushNotification({
-      agentId,
-      agentName: agent.name,
-      department: "retention",
-      kind: "info",
-      message: `Connecting ${agent.name} to GitHub repo: ${repoUrl}`,
-    }, 2500);
-  }, [agents, pushNotification]);
 
   const pushNotification = useCallback(
     (data: Omit<Notification, "id">, ttl = 2600) => {
@@ -309,7 +295,6 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
         getSortedAgents,
         getDepartmentTotal,
         getRecentCountForAgent,
-        connectToGithubRepo,
       }}
     >
       {children}
