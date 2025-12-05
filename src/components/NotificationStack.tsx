@@ -5,11 +5,15 @@ import { useAgents } from "../context/AgentsContext";
 export const NotificationStack: React.FC = () => {
   const { notifications } = useAgents();
 
+  // Only show the latest 4 notifications to prevent overlap
+  const visibleNotifications = notifications.slice(-4);
+
   return (
     <div className="notif-stack">
       <AnimatePresence>
-        {notifications.map((n, index) => {
-          const offset = index * 70;
+        {visibleNotifications.map((n, index) => {
+          // Stagger notifications from bottom, each one offset more
+          const offset = (visibleNotifications.length - 1 - index) * 75;
 
           let label = "";
           let cls = "";
@@ -35,6 +39,17 @@ export const NotificationStack: React.FC = () => {
               label = "JACKPOT";
               cls = "accent-jackpot";
               break;
+            case "rankUp":
+              label = "RANK UP";
+              cls = "accent-rankup";
+              break;
+            case "info":
+              label = "INFO";
+              cls = "accent-info";
+              break;
+            default:
+              label = "";
+              cls = "";
           }
 
           return (
@@ -42,10 +57,10 @@ export const NotificationStack: React.FC = () => {
               key={n.id}
               className={`notif-card ${cls}`}
               style={{ bottom: 12 + offset }}
-              initial={{ x: 80, opacity: 0, scale: 0.95 }}
+              initial={{ x: 100, opacity: 0, scale: 0.9 }}
               animate={{ x: 0, opacity: 1, scale: 1 }}
-              exit={{ x: 80, opacity: 0, scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 260, damping: 24 }}
+              exit={{ x: 100, opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
             >
               <div className="notif-header">
                 <span className="notif-label">{label}</span>

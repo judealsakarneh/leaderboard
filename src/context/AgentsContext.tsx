@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useState,
+  useRef,
 } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -13,10 +14,20 @@ import type {
   Notification,
 } from "../types";
 
+type BigAnnouncement = {
+  id: number;
+  agentId: number;
+  agentName: string;
+  department: Department;
+  score: number;
+  message: string;
+};
+
 type AgentsContextValue = {
   agents: Agent[];
   events: Event[];
   notifications: Notification[];
+  bigAnnouncement: BigAnnouncement | null;
   addAgent: (name: string, avatarUrl?: string) => void;
   adjustScore: (agentId: number, department: Department, delta: number) => void;
   getSortedAgents: (department: Department) => Agent[];
@@ -26,6 +37,7 @@ type AgentsContextValue = {
     department: Department,
     sinceMs: number
   ) => number;
+  dismissBigAnnouncement: () => void;
 };
 
 const AgentsContext = createContext<AgentsContextValue | undefined>(undefined);
@@ -67,16 +79,97 @@ const initialAgents: Agent[] = [
 
 type Props = { children: ReactNode };
 
+// Big announcement milestones
+// NSF: 6, 10, 15, 20, 25, 30... (first at 6, then every 5)
+// Retention: 4, 7, 10, 15, 20... (first at 4, then 7, then every 5)
+const NSF_MILESTONES = [6, 10, 15, 20, 25, 30, 35, 40, 45, 50] as const;
+const RETENTION_MILESTONES = [4, 7, 10, 15, 20, 25, 30, 35, 40, 45, 50] as const;
+
+const isBigMilestone = (score: number, department: Department): boolean => {
+  const milestones = department === "nsf" ? NSF_MILESTONES : RETENTION_MILESTONES;
+  return milestones.includes(score);
+};
+
+// Hype messages for big announcements
+const nsfHypeMessages = [
+  "is on a tear!",
+  "just won't stop!",
+  "is absolutely crushing it!",
+  "making waves on the floor!",
+  "dominating the board!",
+  "unstoppable right now!",
+  "setting the pace!",
+  "leading the charge!",
+];
+
+const retentionHypeMessages = [
+  "is keeping clients happy!",
+  "customer retention master!",
+  "saving the day!",
+  "keeping them coming back!",
+  "client whisperer!",
+  "retention machine!",
+  "loyalty champion!",
+  "making it happen!",
+];
+
+const getRandomHypeMessage = (department: Department): string => {
+  const messages = department === "nsf" ? nsfHypeMessages : retentionHypeMessages;
+  return messages[Math.floor(Math.random() * messages.length)];
+};
+
+// Fun rank up messages
+const rankUpMessages = [
+  "just passed",
+  "moved up past",
+  "overtook",
+  "climbed above",
+  "jumped over",
+];
+
+const getRandomRankUpMessage = (): string => {
+  return rankUpMessages[Math.floor(Math.random() * rankUpMessages.length)];
+};
+
 export const AgentsProvider: React.FC<Props> = ({ children }) => {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [events, setEvents] = useState<Event[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [bigAnnouncement, setBigAnnouncement] = useState<BigAnnouncement | null>(null);
+  const bigAnnouncementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissBigAnnouncement = useCallback(() => {
+    setBigAnnouncement(null);
+    if (bigAnnouncementTimeoutRef.current) {
+      clearTimeout(bigAnnouncementTimeoutRef.current);
+      bigAnnouncementTimeoutRef.current = null;
+    }
+  }, []);
+
+  const showBigAnnouncement = useCallback((announcement: BigAnnouncement, duration = 5000) => {
+    // Clear any existing timeout
+    if (bigAnnouncementTimeoutRef.current) {
+      clearTimeout(bigAnnouncementTimeoutRef.current);
+    }
+    setBigAnnouncement(announcement);
+    bigAnnouncementTimeoutRef.current = setTimeout(() => {
+      setBigAnnouncement(null);
+      bigAnnouncementTimeoutRef.current = null;
+    }, duration);
+  }, []);
 
   const pushNotification = useCallback(
     (data: Omit<Notification, "id">, ttl = 2600) => {
       const id = ++notificationIdCounter;
       const notif: Notification = { id, ...data };
-      setNotifications((prev) => [...prev, notif]);
+      setNotifications((prev) => {
+        // Limit to max 4 notifications at a time
+        const updated = [...prev, notif];
+        if (updated.length > 4) {
+          return updated.slice(-4);
+        }
+        return updated;
+      });
       setTimeout(() => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
       }, ttl);
@@ -108,6 +201,15 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
         let targetAgent: Agent | undefined;
         let prevScore = 0;
         let newScore = 0;
+
+        // Get previous rankings for rank change detection
+        const prevSorted = [...prevAgents].sort((a, b) => {
+          const sa = a.stats[department]?.score || 0;
+          const sb = b.stats[department]?.score || 0;
+          if (sb !== sa) return sb - sa;
+          return a.createdAt - b.createdAt;
+        });
+        const prevRankIndex = prevSorted.findIndex(a => a.id === agentId);
 
         const updatedAgents = prevAgents.map((agent) => {
           if (agent.id !== agentId) return agent;
@@ -151,68 +253,68 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
             pushNotification(
               {
                 agentId,
-                agentName: targetAgent ? targetAgent.name : "",
+                agentName: targetAgent.name,
                 department,
                 kind: "plus",
-                message: `+${delta} ${labelDept}${
-                  delta > 1 ? "s" : ""
-                } locked in.`,
+                message: `+${delta} ${labelDept}${delta > 1 ? "s" : ""} locked in.`,
               },
               1800
             );
+
+            // Check for rank changes - find new position
+            const newSorted = [...updatedAgents].sort((a, b) => {
+              const sa = a.stats[department]?.score || 0;
+              const sb = b.stats[department]?.score || 0;
+              if (sb !== sa) return sb - sa;
+              return a.createdAt - b.createdAt;
+            });
+            const newRankIndex = newSorted.findIndex(a => a.id === agentId);
+            
+            // If agent moved up in rank
+            if (newRankIndex < prevRankIndex && prevRankIndex > 0) {
+              // Find who they passed
+              const passedAgent = prevSorted[prevRankIndex - 1];
+              if (passedAgent) {
+                pushNotification(
+                  {
+                    agentId,
+                    agentName: targetAgent.name,
+                    department,
+                    kind: "rankUp",
+                    message: `${getRandomRankUpMessage()} ${passedAgent.name}!`,
+                  },
+                  2500
+                );
+              }
+            }
+
+            // Check for big milestone announcements
+            if (isBigMilestone(newScore, department)) {
+              const labelType = department === "retention" ? "Retains" : "NSFs";
+              showBigAnnouncement({
+                id: ++notificationIdCounter,
+                agentId,
+                agentName: targetAgent.name,
+                department,
+                score: newScore,
+                message: `${targetAgent.name} ${getRandomHypeMessage(department)} ${newScore} ${labelType} so far!`,
+              }, 6000);
+            }
           } else {
             pushNotification(
               {
                 agentId,
-                agentName: targetAgent && "name" in targetAgent ? targetAgent.name : "",
+                agentName: targetAgent.name,
                 department,
                 kind: "minus",
-                message: `${Math.abs(
-                  delta
-                )} ${labelDept}${Math.abs(delta) > 1 ? "s" : ""} reversed.`,
+                message: `${Math.abs(delta)} ${labelDept}${Math.abs(delta) > 1 ? "s" : ""} reversed.`,
               },
               1800
             );
           }
 
-          // Only celebrate upward moves
+          // Streak check: last 5 minutes, same department, positive events
           if (delta > 0 && newScore > prevScore) {
-            const threshold =
-              department === "retention" ? 5 : 10; // 5 retains, 10 NSFs
-            const jackpotMultiplier =
-              department === "retention" ? 5 : 10; // milestone every 5/10
-
-            const hitJackpot =
-              newScore >= threshold && newScore % jackpotMultiplier === 0;
-
-            if (hitJackpot) {
-              pushNotification(
-                {
-                  agentId,
-                  agentName: targetAgent && "name" in targetAgent ? targetAgent.name : "",
-                  department,
-                  kind: "jackpot",
-                  message:
-                    department === "retention"
-                      ? `Slot hit: ${newScore} retains.`
-                      : `Board spike: ${newScore} NSFs.`,
-                },
-                3800
-              );
-            } else if (newScore % jackpotMultiplier === 0) {
-              pushNotification(
-                {
-                  agentId,
-                  agentName: targetAgent && "name" in targetAgent ? targetAgent.name : "",
-                  department,
-                  kind: "milestone",
-                  message: `Milestone at ${newScore} ${labelDept}s.`,
-                },
-                3200
-              );
-            }
-
-            // Streak check: last 5 minutes, same department, positive events
             setEvents((prev) => {
               const since = nowTs - 5 * 60 * 1000;
               const recent = prev.filter(
@@ -222,8 +324,7 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
                   e.department === department &&
                   e.delta > 0
               );
-              const totalDelta =
-                recent.reduce((sum, e) => sum + e.delta, 0) + delta;
+              const totalDelta = recent.reduce((sum, e) => sum + e.delta, 0) + delta;
               if (totalDelta >= 3) {
                 pushNotification(
                   {
@@ -244,7 +345,7 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
         return updatedAgents;
       });
     },
-    [pushNotification]
+    [pushNotification, showBigAnnouncement]
   );
 
   const getSortedAgents = useCallback(
@@ -290,11 +391,13 @@ export const AgentsProvider: React.FC<Props> = ({ children }) => {
         agents,
         events,
         notifications,
+        bigAnnouncement,
         addAgent,
         adjustScore,
         getSortedAgents,
         getDepartmentTotal,
         getRecentCountForAgent,
+        dismissBigAnnouncement,
       }}
     >
       {children}
